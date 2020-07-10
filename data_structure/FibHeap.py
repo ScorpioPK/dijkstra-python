@@ -111,6 +111,9 @@ class Fheap:
         self.num_trees = 0
         self.num_marks = 0
 
+    def init_heap(self, nodes):
+        self.__init__()
+
     def remove_root(self,x):
         """ Remove a root from the list of roots of the heap.
 

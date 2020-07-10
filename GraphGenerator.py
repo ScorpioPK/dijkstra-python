@@ -14,3 +14,21 @@ def generate_graph(file_name, nodes, edges, start, max_weight):
         for edge in edge_list:
             f.write("{} {} {}\n".format(node, edge, (random.sample(range(1, max_weight + 1), 1))[0]))
         edges_remaining -= number_of_edges
+
+
+def generate_graph_probability(file_name, nodes, probability, start, max_weight):
+    max_value = int(probability*1000)
+    edges = 0
+    graph = [[] for i in range(nodes)]
+    for source in range(nodes):
+        for target in range(nodes):
+            if random.randrange(1000) < max_value:
+                edges += 1
+                graph[source].append([target, random.randrange(1, max_weight+1)])
+        random.shuffle(graph[source])
+
+    f = open(file_name, "a")
+    f.write("{} {} {}\n".format(nodes, edges, start))
+    for node in range(nodes):
+        for edge in graph[node]:
+            f.write("{} {} {}\n".format(node, edge[0],edge[1]))

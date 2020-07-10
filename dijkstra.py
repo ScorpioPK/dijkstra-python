@@ -7,65 +7,11 @@ from data_structure.DanielBorowskiFibonacciHeap import FibonacciHeap as DBFibona
 from data_structure.FibHeap import Fheap as FibHeap
 from data_structure.KeithSchwarzFibonacciHeap import KFib as KFib
 
-DATA_FOLDER_NAME = "data6"
+DATA_FOLDER_NAME = "data7"
 
 
 def format_time(time_in_seconds):
     return int(time_in_seconds*1000)
-
-
-def dijkstra_with_min_heap(graph):
-    temp_dist = numpy.empty(graph.node_number, dtype=object)
-    temp_dist.fill(numpy.inf)
-    temp_dist[graph.source_node] = 0;
-    final_distances = temp_dist.copy()
-
-    distances = MinHeap()
-    distances.init_heap(temp_dist[graph.source_node], graph.source_node, graph.node_number)
-
-    complete = numpy.empty(graph.node_number, dtype=object)
-    complete.fill(False)
-
-    for node in range(graph.node_number):
-        min_value, min_node = distances.pop_min()
-        if min_value == -1:
-            break
-        for edge in graph.edges[min_node]:
-            if not complete[edge[0]]:
-                if distances.get_value_for_node(edge[0]) == -1:
-                    distances.insert(edge[1] + min_value, edge[0])
-                elif distances.get_value_for_node(edge[0]) > edge[1] + min_value:
-                    distances.decrease_key(edge[0], edge[1] + min_value)
-        complete[min_node] = True
-        final_distances[min_node] = min_value
-
-    return final_distances
-
-
-def dijkstra_with_min_heap_no_decrease_key(graph):
-    temp_dist = numpy.empty(graph.node_number, dtype=object)
-    temp_dist.fill(numpy.inf)
-    temp_dist[graph.source_node] = 0;
-    final_distances = temp_dist.copy()
-
-    distances = MinHeap()
-    distances.init_heap(temp_dist[graph.source_node], graph.source_node, graph.node_number)
-
-    complete = numpy.empty(graph.node_number, dtype=object)
-    complete.fill(False)
-
-    for node in range(graph.node_number):
-        min_value, min_node = distances.pop_min()
-        if min_value == -1:
-            break
-        for edge in graph.edges[min_node]:
-            if not complete[edge[0]] and (distances.get_value_for_node(edge[0]) == -1 or
-                    distances.get_value_for_node(edge[0]) > edge[1] + min_value):
-                distances.insert(edge[1] + min_value, edge[0])
-        complete[min_node] = True
-        final_distances[min_node] = min_value
-
-    return final_distances
 
 
 def dijkstra_with_fibonacci_heap(graph, queue):
@@ -138,9 +84,9 @@ def run_algorithm(graph, queue, alg_name, output_file_name, test_times_file, fib
         else:
             distances = dijkstra_with_fibonacci_heap_no_decrease_key(graph, queue)
         end_time = time.time()
-        print("Run time for run {} {} solution:{} seconds".format(iterator, alg_name, format_time(end_time - start_time)))
+        print("Run time for run {} {} solution:{} milliseconds".format(iterator, alg_name, format_time(end_time - start_time)))
         test_times_file.write(
-            "Run time for run {} {} solution:{} seconds\n".format(iterator, alg_name, format_time(end_time - start_time)))
+            "Run time for run {} {} solution:{} milliseconds\n".format(iterator, alg_name, format_time(end_time - start_time)))
         times.append(format_time(end_time - start_time))
     f = open(output_file_name, "w")
     for distance in distances:
@@ -149,39 +95,11 @@ def run_algorithm(graph, queue, alg_name, output_file_name, test_times_file, fib
 
     times.sort()
     final_times = [times[t] for t in range(2, 8)]
-    average_time = sum(final_times) / len(final_times)
+    average_time = int(sum(final_times) / len(final_times))
     print("Average time for {} solution is {}".format(alg_name, average_time))
     test_times_file.write("Average time for {} solution is {}\n".format(alg_name, average_time))
     fib_times_file.write("{}\n".format(average_time))
     fib_times_file.close()
-
-
-def run_dijkstra_with_min_heap(graph, alg_name, output_file_name, test_times_file, heap_times_file_path, has_decrease_key):
-    heap_times_file = open(heap_times_file_path, "a")
-    times = []
-    for iterator in range(1, 11):
-        start_time = time.time()
-        if has_decrease_key:
-            distances = dijkstra_with_min_heap(graph)
-        else:
-            distances = dijkstra_with_min_heap_no_decrease_key(graph)
-        end_time = time.time()
-        print("Run time for run {} {} solution:{} seconds".format(iterator, alg_name, format_time(end_time - start_time)))
-        test_times_file.write(
-            "Run time for run {} {} solution:{} seconds\n".format(iterator, alg_name, format_time(end_time - start_time)))
-        times.append(format_time(end_time - start_time))
-    f = open(output_file_name, "w")
-    for distance in distances:
-        f.write("{} ".format(distance))
-    f.close()
-
-    times.sort()
-    final_times = [times[t] for t in range(2, 8)]
-    average_time = sum(final_times) / len(final_times)
-    print("Average time for {} solution is {}".format(alg_name, average_time))
-    test_times_file.write("Average time for {} solution is {}\n".format(alg_name, average_time))
-    heap_times_file.write("{}\n".format(average_time))
-    heap_times_file.close()
 
 
 def run_algorithms(graph, test_number):
@@ -192,20 +110,22 @@ def run_algorithms(graph, test_number):
 
     #run_dijkstra_with_min_heap(graph, "min heap", "{}/heap{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/heapTimes.txt".format(DATA_FOLDER_NAME), True)
     run_algorithm(graph, MinHeap(), "min heap", "{}/heap{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/heapTimes.txt".format(DATA_FOLDER_NAME), True)
-    run_algorithm(graph, MinHeap(), "min heap2", "{}/heap{}2.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/heapTimes2.txt".format(DATA_FOLDER_NAME), False)
 
     # Fibonacci heap implementations
-    #run_algorithm(graph, DBFibonacciHeap(), "fib heap", "{}/fibdb{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibdb.txt".format(DATA_FOLDER_NAME), True)
-    #run_algorithm(graph, FibHeap(), "fibPip heap", "{}/fibPip{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibPip.txt".format(DATA_FOLDER_NAME), True)
-    #run_algorithm(graph, KFib(), "fibK heap", "{}/fibK{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibK.txt".format(DATA_FOLDER_NAME), True)
+    run_algorithm(graph, DBFibonacciHeap(), "fib heap", "{}/fibdb{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibdb.txt".format(DATA_FOLDER_NAME), True)
+    run_algorithm(graph, FibHeap(), "fibPip heap", "{}/fibPip{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibPip.txt".format(DATA_FOLDER_NAME), True)
+    run_algorithm(graph, KFib(), "fibK heap", "{}/fibK{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibK.txt".format(DATA_FOLDER_NAME), True)
 
     #run_dijkstra_with_min_heap(graph, "min heapi", "{}/heapi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/heapTimes.txt".format(DATA_FOLDER_NAME), False)
 
 
+    #No decrease key tests
+    run_algorithm(graph, MinHeap(), "min heap2", "{}/heap{}2.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/heapTimes2.txt".format(DATA_FOLDER_NAME), False)
+
     # Fibonacci heap implementations
-    #run_algorithm(graph, DBFibonacciHeap(), "fib heapi", "{}/fibdbi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibdbi.txt".format(DATA_FOLDER_NAME), False)
-    #run_algorithm(graph, FibHeap(), "fibPip heapi", "{}/fibPipi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibPipi.txt".format(DATA_FOLDER_NAME), False)
-    #run_algorithm(graph, KFib(), "fibK heapi", "{}/fibKi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibKi.txt".format(DATA_FOLDER_NAME), False)
+    run_algorithm(graph, DBFibonacciHeap(), "fib heapi", "{}/fibdbi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibdbi.txt".format(DATA_FOLDER_NAME), False)
+    run_algorithm(graph, FibHeap(), "fibPip heapi", "{}/fibPipi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibPipi.txt".format(DATA_FOLDER_NAME), False)
+    run_algorithm(graph, KFib(), "fibK heapi", "{}/fibKi{}.txt".format(DATA_FOLDER_NAME, test_number), times_file, "{}/fibKi.txt".format(DATA_FOLDER_NAME), False)
 
     times_file.close()
     print("Done")
@@ -213,11 +133,17 @@ def run_algorithms(graph, test_number):
 
 def main():
     edges = [5000, 10000, 50000, 100000, 200000, 300000, 400000, 500000, 600000, 700000]
+    nodes = 1000
+    max_weight = 1000000
+    source = 0
     for test_no in range(len(edges)):
-        for graph_no in range(10):
+        for graph_no in range(20):
             file_id = "{}{}".format(test_no, graph_no)
             print("Running test number {}, iteration {}".format(test_no, graph_no))
-            GraphGenerator.generate_graph("{}/graph{}.txt".format(DATA_FOLDER_NAME, file_id), 1000, edges[test_no], 0, 1000000)
+            if graph_no < 10:
+                GraphGenerator.generate_graph("{}/graph{}.txt".format(DATA_FOLDER_NAME, file_id), nodes, edges[test_no], source, max_weight)
+            else:
+                GraphGenerator.generate_graph_probability("{}/graph{}.txt".format(DATA_FOLDER_NAME, file_id), nodes, edges[test_no]/(nodes*nodes), source, max_weight)
 
             graph = Graph()
             graph.read_from_file("{}/graph{}.txt".format(DATA_FOLDER_NAME, file_id), True)
